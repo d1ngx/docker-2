@@ -2,8 +2,8 @@ FROM php:7.4-fpm-alpine3.14
 
 ENV KODBOX_VERSION 1.22
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
-# RUN apk add --no-cache --repository http://mirrors.aliyun.com/alpine/edge/community gnu-libiconv
-# RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+RUN apk add --no-cache --repository http://mirrors.aliyun.com/alpine/edge/community gnu-libiconv
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
 # entrypoint.sh and dependencies
 RUN set -ex; \
@@ -15,6 +15,7 @@ RUN set -ex; \
 	imagemagick \
 	ffmpeg \
 	tzdata \
+	unzip \
 	nginx \
 	# forward request and error logs to docker log collector
 	  && ln -sf /dev/stdout /var/log/nginx/access.log \
@@ -136,12 +137,12 @@ RUN set -ex; \
         gnupg \
     ; \
     \
-    curl -fsSL -o kodbox.tar.gz \
-		"https://flyaws.s3.ap-east-1.amazonaws.com/server/releases/kodbox.${KODBOX_VERSION}.tar.gz"; \ 
+    curl -fsSL -o kodbox.zip \
+		"https://static.kodcloud.com/update/download/kodbox.${KODBOX_VERSION}.zip"; \ 
     export GNUPGHOME="$(mktemp -d)"; \
-    tar -xvf kodbox.tar.gz -C /usr/src/; \
+    unzip kodbox.zip -d /usr/src/kodbox/; \
     gpgconf --kill all; \
-    rm kodbox.tar.gz; \
+    rm kodbox.zip; \
     rm -rf "$GNUPGHOME"; \
     apk del .fetch-deps
 
